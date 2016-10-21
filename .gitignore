@@ -1,4 +1,5 @@
 keys.js
 *.gif
+!ajax-loader.gif
 *.png
 *.jpg
