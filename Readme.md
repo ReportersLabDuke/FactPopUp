@@ -10,7 +10,15 @@ FactPopUp a product of the Duke Reporters' Lab and is developed by Gautam Hathi.
 
 ##Repo and code details
 This repo does not include the PolitiFact branding images which are in the version of the extension that is on the Chrome Webstore. **You'll need to add your own copy of logo.gif and logo.png in the root directory to make the extension work.**
-You'll also need your own Twitter application keys.
+You'll also need your own Twitter application keys in a keys.js file that should look something like this:
+
+```javascript
+var keys = {
+  "consumerKey": "xxxxxxxxxxxxxxxxxxxxxxxxx",
+  "consumerSecret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+};
+```
+
 The extension uses [codebird-js](https://github.com/jublonet/codebird-js "Codebird-JS"), which is Copyright (C) 2010-2016 Jublo Solutions and made available under the [GPLv3 License](https://www.gnu.org/licenses/gpl-3.0.en.html "GPLv3").
 
 ##License
