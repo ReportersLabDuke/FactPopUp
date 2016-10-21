@@ -1,0 +1,45 @@
+<!doctype html>
+<!--
+ This page is shown when the extension button is clicked, because the
+ "browser_action" field in manifest.json contains the "default_popup" key with
+ value "popup.html".
+ -->
+<html>
+  <head>
+    <title>FactNotify Popup</title>
+    <style>
+      body {
+        font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
+        font-size: 100%;
+      }
+      #status {
+        /* avoid an excessively wide status text */
+        white-space: pre;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        max-width: 400px;
+      }
+    </style>
+    <script type="text/javascript" src="lib/codebird.js"></script>
+
+    <script type="text/javascript" src="keys.js"></script>
+    <script type="text/javascript" src="js/authhandler.js"></script>
+
+  </head>
+  <body>
+    <p>Step 1: Click the get pin button to go to Twitter's website and allow this app.</p>
+    <input type="button" id="getPin" value="Get pin">
+    <img id="pin-load" src="ajax-loader.gif" hidden/>
+    <p>Step 2: Copy the number from Twitter's website and paste it in the text box below.</p>
+    <input type="text" id="PINFIELD">
+    <p>Step 3: Hit submit and you're ready to go!</p>
+    <input type="button" id="submitPin" value="Submit pin">
+    <img id="submit-load" src="ajax-loader.gif" hidden />
+    <img id="image-result" hidden />
+    <h1 id="success" hidden>Success!</h1>
+    <input type="button" id="openStream" value="Open live stream" />
+    <input type="button" id="stop" value="Stop notifications" />
+    <input type="button" id="start" value="Start notifications" hidden/>
+  </body>
+</html>
+

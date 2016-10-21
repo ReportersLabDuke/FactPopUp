@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Debate video player</title>
+    <style>
+        body {
+            font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
+            font-size: 100%;
+            margin:0;padding:0;height:100%;overflow: hidden;
+        }
+
+        html {margin:0;padding:0;height:100%;}
+
+        #status {
+            /* avoid an excessively wide status text */
+            white-space: pre;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            max-width: 400px;
+        }
+
+        .streamEmbed {
+            width: 100%    !important;
+            height: 100%   !important;
+        }
+
+        .streamContainer {
+            width: 100%    !important;
+            height: 100%   !important;
+        }
+    </style>
+
+    <script type="text/javascript" src="js/streamspage.js"></script>
+</head>
+<body>
+    <div id ="container1" class="streamContainer" hidden>
+        <iframe id="vid1" class="streamEmbed" src="https://www.youtube.com/embed/mVXqNcW_-HA" frameborder="0" allowfullscreen="false" hidden></iframe>
+    </div>
+    <div id="container2" class="streamContainer" hidden>
+        <iframe id="vid2" class="streamEmbed" src="https://www.youtube.com/embed/FRlI2SQ0Ueg" frameborder="0" allowfullscreen="false" hidden></iframe>
+    </div>
+    <div id="container3" class="streamContainer" hidden>
+        <iframe id="vid3" class="streamEmbed" src="https://www.youtube.com/embed/smkyorC5qwc" frameborder="0" allowfullscreen="false" hidden></iframe>
+    </div>
+</body>
+</html>
