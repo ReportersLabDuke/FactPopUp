@@ -1,0 +1,14 @@
+{
+  "name": "politifact-extension-server",
+  "version": "1.0.0",
+  "description": "server for FactPopUp",
+  "main": "streaming_test.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Duke Reporters' Lab",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "twit": "^2.2.5"
+  }
+}

@@ -20,20 +20,16 @@
         max-width: 400px;
       }
     </style>
-    <script type="text/javascript" src="lib/codebird.js"></script>
 
+    <script src="lib/CryptoJS v3.1.2/rollups/hmac-sha256.js"></script>
+    <script src="lib/CryptoJS v3.1.2/components/enc-base64-min.js"></script>
     <script type="text/javascript" src="keys.js"></script>
     <script type="text/javascript" src="js/authhandler.js"></script>
 
   </head>
   <body>
-    <p>Step 1: Click the get pin button to go to Twitter's website and allow this app.</p>
-    <input type="button" id="getPin" value="Get pin">
-    <img id="pin-load" src="ajax-loader.gif" hidden/>
-    <p>Step 2: Copy the number from Twitter's website and paste it in the text box below.</p>
-    <input type="text" id="PINFIELD">
-    <p>Step 3: Hit submit and you're ready to go!</p>
-    <input type="button" id="submitPin" value="Submit pin">
+    <p>Hit the register button to enroll for notifications</p>
+    <input type="button" id="register" value="Register">
     <img id="submit-load" src="ajax-loader.gif" hidden />
     <img id="image-result" hidden />
     <h1 id="success" hidden>Success!</h1>

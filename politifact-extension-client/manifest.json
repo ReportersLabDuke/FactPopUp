@@ -25,8 +25,11 @@
     "https://ajax.googleapis.com/*",
     "https://stream.twitter.com/*",
     "http://www.politifact.com/*",
-    "https://pbs.twimg.com/*"
-  ],
+    "https://pbs.twimg.com/*",
+    "gcm",
+    "storage",
+    "https://*.servicebus.windows.net/*"
+  ], 
   "externally_connectable": {
     "matches": [
       "https://stream.twitter.com/*",
