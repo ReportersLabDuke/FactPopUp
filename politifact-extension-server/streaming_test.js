@@ -1,5 +1,8 @@
 var Twit = require('twit');
+var azure = require('azure-sb');
 var server_keys = require('./server_keys');
+
+Debug = true;
 
 var T = new Twit({
   consumer_key:         server_keys.consumer_key,
@@ -9,11 +12,29 @@ var T = new Twit({
   timeout_ms:           60*1000,  // optional HTTP request timeout to apply to all requests.
 })
 
+var notificationHubService = azure.createNotificationHubService("FactPopUpHub", server_keys.connection_string);
+
+//notificationHubService.listRegistrations(null, function(error, response) { registrations = response; });
+//registrations[0]._.updated;
+
 //
-//  filter the twitter public stream by the word 'mango'.
+//  filter the twitter public stream to get tweets from @ItsOfficialTest
 //
 var stream = T.stream('statuses/filter', { follow: '751627720790986752' })
 
 stream.on('tweet', function (tweet) {
-  console.log(tweet.text)
+    console.log(tweet);
+    var payload = {
+        data: {
+            tweet,
+        }
+    };
+    notificationHubService.gcm.send(null, payload, function (error) {
+        if (!error) {
+            if (Debug) { console.log(tweet.text); }
+        } else {
+            console.log("ERROR");
+            console.log(tweet);
+        }
+    });
 })

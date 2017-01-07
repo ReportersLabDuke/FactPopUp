@@ -2,8 +2,8 @@
 latest_status_id = '';
 user_id = 751627720790986752;
 screen_name = 'politifactlive';
-var links = [];
-var media_links = [];
+var links = []; //kept in script variable so that links can be accessed from notification click event handler
+var media_links = []; //might need to access media links too outside of notification...
 var counter = 1;
 var timer = -1;
 
@@ -15,7 +15,21 @@ function getNotificationId() {
 }
 
 // Set up a listener for GCM message event.
-chrome.gcm.onMessage.addListener(function (message) { console.log(message); });
+chrome.gcm.onMessage.addListener(function (message) {
+    console.log(JSON.parse(message.data.tweet));
+    var tweet_obj = JSON.parse(message.data.tweet);
+
+    links = [];
+    media_links = [];
+    if (tweet_obj.entities.hasOwnProperty('urls')) {
+        tweet_obj.entities.urls.map(function (val) { links.push(val.url); })
+    }
+    if (tweet_obj.entities.hasOwnProperty('media')) {
+        tweet_obj.entities.media.map(function (val) { media_links.push(val.media_url_https); })
+    }
+
+    sendNotification("", tweet_obj.text);
+});
 
 chrome.runtime.onInstalled.addListener(function (object) {
     chrome.tabs.create({ url: "popup.html" }, function (tab) {
@@ -54,7 +68,13 @@ function sendNotification(notificationTitle, notificationMessage) {
         Math.floor((1 + Math.random()) * 0x10000)
           .toString(16)
           .substring(1),
-        options, function (id) { chrome.notifications.getAll(function (nots) { console.log(nots); }); });
+        options, 
+        function (id) {
+            chrome.notifications.getAll(
+                function (notifications) {
+                    console.log(notifications);
+                });
+        });
 }
 
 chrome.notifications.onClicked.addListener(

@@ -9,6 +9,7 @@
   "author": "Duke Reporters' Lab",
   "license": "GPL-3.0",
   "dependencies": {
+    "azure-sb": "^0.10.4",
     "twit": "^2.2.5"
   }
 }

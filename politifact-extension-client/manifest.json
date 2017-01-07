@@ -3,7 +3,7 @@
 
   "name": "FactPopUp",
   "description": "Creates notifications for fact-checking tweets.",
-  "version": "1.5.2",
+  "version": "2.0.0",
 
   "browser_action": {
     "default_icon": "logo.png",
@@ -28,7 +28,8 @@
     "https://pbs.twimg.com/*",
     "gcm",
     "storage",
-    "https://*.servicebus.windows.net/*"
+    "https://*.servicebus.windows.net/*",
+	"management"
   ], 
   "externally_connectable": {
     "matches": [
