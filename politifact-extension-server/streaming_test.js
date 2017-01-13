@@ -3,6 +3,8 @@ var azure = require('azure-sb');
 var server_keys = require('./server_keys');
 
 Debug = true;
+var registrationExpiryThreshold = 1 * 60 * 1000;
+var purgeInterval = 60 * 60 * 1000;
 
 var T = new Twit({
   consumer_key:         server_keys.consumer_key,
@@ -14,8 +16,41 @@ var T = new Twit({
 
 var notificationHubService = azure.createNotificationHubService("FactPopUpHub", server_keys.connection_string);
 
-//notificationHubService.listRegistrations(null, function(error, response) { registrations = response; });
-//registrations[0]._.updated;
+function errorResponseLogger(error, response) {
+    if (!error) {
+        if (Debug) { console.log(response);}
+    } else {
+        console.log("ERROR!");
+        console.log(error);
+    }
+}
+
+//purges all expired registrations
+function purgeRegistrations(notificationHub) {
+    var registrations = [];
+    notificationHub.listRegistrations(null, function (error, response) {
+        if (!error) {
+            if (Debug) { console.log(response);}
+            registrations = response;
+
+            registrations.forEach(function (registration) {
+                expireTime = new Date(registration.ExpirationTime);
+                debugger;
+                if (Date.now() > expireTime.getTime()) {
+                    debugger;
+                    notificationHub.deleteRegistration(registration.RegistrationId, null, errorResponseLogger);
+                }
+            });
+        } else {
+            console.log("ERROR!");
+            console.log(error);
+        }
+    });
+    setInterval(purgeRegistrations, purgeInterval, notificationHubService);
+}
+
+purgeRegistrations(notificationHubService);
+setInterval(purgeRegistrations, purgeInterval, notificationHubService);
 
 //
 //  filter the twitter public stream to get tweets from @ItsOfficialTest
@@ -29,12 +64,5 @@ stream.on('tweet', function (tweet) {
             tweet,
         }
     };
-    notificationHubService.gcm.send(null, payload, function (error) {
-        if (!error) {
-            if (Debug) { console.log(tweet.text); }
-        } else {
-            console.log("ERROR");
-            console.log(tweet);
-        }
-    });
+    notificationHubService.gcm.send(null, payload, errorResponseLogger);
 })

@@ -3,14 +3,11 @@ var registrationId = "";
 var hubName = "FactPopUpHub", connectionString = keys.azure_connection_string;
 var originalUri = "", targetUri = "", endpoint = "", sasKeyName = "", sasKeyValue = "", sasToken = "";
 var gcm_sender_id = keys.gcm_sender_id;
+var refreshInterval = 24 * 60 * 60 * 1000;
+
+var parser = new DOMParser();
 
 function updateLog(status) {
-    //currentStatus = document.getElementById("console").innerHTML;
-    //if (currentStatus != "") {
-    //    currentStatus = currentStatus + "\n\n";
-    //}
-
-    //document.getElementById("console").innerHTML = currentStatus + status;
     console.log(status);
 }
 
@@ -36,7 +33,7 @@ function registerCallback(regId) {
         updateLog("Registration failed: " + chrome.runtime.lastError.message);
         return;
     } else {
-        registerWithNH();
+        registerWithNH(false);
         updateLog("Registration with GCM succeeded.");
 
         // Mark that the first-time registration is done.
@@ -47,10 +44,10 @@ function registerCallback(regId) {
     }
 }
 
-function registerWithNH() {
+function registerWithNH(update) {
     splitConnectionString();
     generateSaSToken();
-    sendNHRegistrationRequest();
+    sendNHRegistrationRequest(update);
 }
 
 // From http://msdn.microsoft.com/library/dn495627.aspx
@@ -95,7 +92,8 @@ function generateSaSToken() {
                     + base64UriEncoded + "&se=" + expires + "&skn=" + sasKeyName;
 }
 
-function sendNHRegistrationRequest() {
+//update parameter determines whether to send an update or create request
+function sendNHRegistrationRequest(update) {
     var registrationPayload =
     "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
     "<entry xmlns=\"http://www.w3.org/2005/Atom\">" +
@@ -109,7 +107,16 @@ function sendNHRegistrationRequest() {
     // Update the payload with the registration ID obtained earlier.
     registrationPayload = registrationPayload.replace("{GCMRegistrationId}", registrationId);
 
-    var url = originalUri + "/registrations/?api-version=2014-09";
+    var nhRegistrationId = "";
+    chrome.storage.local.get("nhRegistrationId", function(resp) {
+        if (resp.hasOwnProperty("nhRegistrationId")) {
+            nhRegistrationId = resp.nhRegistrationId;
+        }
+    });
+
+    var url = update
+        ? originalUri + "/registrations/{NHRegistrationId}?api-version=2015-01".replace("{NHRegistrationId}", nhRegistrationId)
+        : originalUri + "/registrations/?api-version=2014-09".replace("{GCMRegistrationId}", registrationId);
     var client = new XMLHttpRequest();
 
     client.onload = function () {
@@ -117,6 +124,12 @@ function sendNHRegistrationRequest() {
             if (client.status == 200) {
                 updateLog("Notification Hub Registration succesful!");
                 updateLog(client.responseText);
+                var responseXml = parser.parseFromString(client.responseText, "text/xml");
+                id_tag = responseXml.getElementsByTagName("RegistrationId");
+                chrome.storage.local.set({
+                    nhRegistrationId: responseXml.getElementsByTagName("RegistrationId")[0].innerHTML
+                });
+                setInterval(registerWithNH, refreshInterval, false);
             } else {
                 updateLog("Notification Hub Registration did not succeed!");
                 updateLog("HTTP Status: " + client.status + " : " + client.statusText);
@@ -129,50 +142,13 @@ function sendNHRegistrationRequest() {
         updateLog("ERROR - Notification Hub Registration did not succeed!");
     }
 
-    client.open("POST", url, true);
-    client.setRequestHeader("Content-Type", "application/atom+xml;type=entry;charset=utf-8");
-    client.setRequestHeader("Authorization", sasToken);
-    client.setRequestHeader("x-ms-version", "2014-09");
-
-    try {
-        client.send(registrationPayload);
-    }
-    catch (err) {
-        updateLog(err.message);
-    }
-}
-
-function sendNHDeleteRequest() {
-
-    var url = originalUri + "/registrations/{GCMRegistrationId}?api-version=2015-01";
-    url = url.replace("{GCMRegistrationId}", registrationId);
-
-    var client = new XMLHttpRequest();
-
-    client.onload = function () {
-        if (client.readyState == 4) {
-            if (client.status == 200) {
-                updateLog("Notification Hub Registration succesful!");
-                updateLog(client.responseText);
-            } else {
-                updateLog("Notification Hub Registration did not succeed!");
-                updateLog("HTTP Status: " + client.status + " : " + client.statusText);
-                updateLog("HTTP Response: " + "\n" + client.responseText);
-            }
-        }
-    };
-
-    client.onerror = function () {
-        updateLog("ERROR - Notification Hub Registration did not succeed!");
-    }
-
-    client.open("DELETE", url, true);
+    client.open(update ? "PUT" : "POST", url, true);
     client.setRequestHeader("Content-Type", "application/atom+xml;type=entry;charset=utf-8");
     client.setRequestHeader("Authorization", sasToken);
     client.setRequestHeader("x-ms-version", "2015-01");
 
     try {
-        client.send("");
+        client.send(registrationPayload);
     }
     catch (err) {
         updateLog(err.message);
