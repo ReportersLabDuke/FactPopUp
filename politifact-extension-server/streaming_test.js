@@ -5,6 +5,8 @@ var server_keys = require('./server_keys');
 Debug = true;
 var registrationExpiryThreshold = 1 * 60 * 1000;
 var purgeInterval = 60 * 60 * 1000;
+user_id = '751627720790986752'; //@itsofficialtest
+screen_name = 'politifactlive';
 
 var T = new Twit({
   consumer_key:         server_keys.consumer_key,
@@ -55,13 +57,21 @@ setInterval(purgeRegistrations, purgeInterval, notificationHubService);
 //
 //  filter the twitter public stream to get tweets from @ItsOfficialTest
 //
-var stream = T.stream('statuses/filter', { follow: '751627720790986752' })
+var stream = T.stream('statuses/filter', { follow: user_id })
 
 stream.on('tweet', function (tweet) {
     console.log(tweet);
     var payload = {
         data: {
-            tweet,
+            //tweet,
+            "tweet": {
+                created_at: tweet.created_at,
+                text: tweet.text,
+                entities: {
+                    urls: tweet.entities.urls,
+                    media: tweet.entities.media
+                }
+            }
         }
     };
     notificationHubService.gcm.send(null, payload, errorResponseLogger);

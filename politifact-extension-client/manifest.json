@@ -29,7 +29,8 @@
     "gcm",
     "storage",
     "https://*.servicebus.windows.net/*",
-	"management"
+	"management",
+	"alarms"
   ], 
   "externally_connectable": {
     "matches": [

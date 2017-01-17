@@ -1,11 +1,8 @@
 // JavaScript source code
 latest_status_id = '';
-user_id = 751627720790986752;
-screen_name = 'politifactlive';
 var links = []; //kept in script variable so that links can be accessed from notification click event handler
 var media_links = []; //might need to access media links too outside of notification...
-var counter = 1;
-var timer = -1;
+var sendingNotifications = true;
 
 // Returns a new notification ID used in the notification.
 //from: https://docs.microsoft.com/en-us/azure/notification-hubs/notification-hubs-chrome-push-notifications-get-started
@@ -16,19 +13,23 @@ function getNotificationId() {
 
 // Set up a listener for GCM message event.
 chrome.gcm.onMessage.addListener(function (message) {
-    console.log(JSON.parse(message.data.tweet));
-    var tweet_obj = JSON.parse(message.data.tweet);
+    if (sendingNotifications) {
+        console.log(JSON.parse(message.data.tweet));
+        var tweet_obj = JSON.parse(message.data.tweet);
 
-    links = [];
-    media_links = [];
-    if (tweet_obj.entities.hasOwnProperty('urls')) {
-        tweet_obj.entities.urls.map(function (val) { links.push(val.url); })
-    }
-    if (tweet_obj.entities.hasOwnProperty('media')) {
-        tweet_obj.entities.media.map(function (val) { media_links.push(val.media_url_https); })
-    }
+        links = [];
+        media_links = [];
+        if (tweet_obj.entities.hasOwnProperty('urls')) {
+            tweet_obj.entities.urls.map(function (val) { links.push(val.url); })
+        }
+        if (tweet_obj.entities.hasOwnProperty('media')) {
+            tweet_obj.entities.media.map(function (val) { media_links.push(val.media_url_https); })
+        }
 
-    sendNotification("", tweet_obj.text);
+        sendNotification("", tweet_obj.text);
+    } else {
+        console.log("Message recieved, not listening")
+    }
 });
 
 chrome.runtime.onInstalled.addListener(function (object) {
@@ -41,12 +42,9 @@ chrome.extension.onMessage.addListener(function (request, sender, sendResponse) 
     if (request.hasOwnProperty("oauth_token") && timer === -1) {
         init(request);
     } else if (request.hasOwnProperty("stop")) {
-        window.clearInterval(timer);
-        timer = -1;
+        sendingNotifications = false;
     } else if (request.hasOwnProperty("start")) {
-        if (timer === -1) {
-            timer = setInterval(checkTweets, 5 * 1000);
-        }
+        sendingNotifications = true;
     }
 });
 
