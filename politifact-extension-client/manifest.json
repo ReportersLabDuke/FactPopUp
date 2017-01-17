@@ -11,7 +11,13 @@
   },
 
   "background": {
-    "scripts": [ "keys.js", "lib/codebird.js", "js/alert.js" ],
+    "scripts": [
+		"keys.js",
+		"lib/codebird.js",
+		"js/alert.js",
+		"lib/CryptoJS v3.1.2/rollups/hmac-sha256.js",
+		"lib/CryptoJS v3.1.2/components/enc-base64-min.js"
+	],
     "persistent": true
   },
 
