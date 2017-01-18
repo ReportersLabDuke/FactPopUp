@@ -166,6 +166,7 @@ function sendNHRegistrationRequest() {
 
 chrome.alarms.onAlarm.addListener(function (alarm) {
     if (alarm.name == "registrationTimer") {
+        console.log("registration timer!");
         registerWithNH();
     }
 });

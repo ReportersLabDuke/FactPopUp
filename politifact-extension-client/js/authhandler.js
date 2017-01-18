@@ -29,21 +29,9 @@ document.addEventListener('DOMContentLoaded', function () {
     link.addEventListener('click', startNotifications);
 });
 
-//document.addEventListener('DOMContentLoaded', function () {
-//    var link = document.getElementById('register');
-//    // onClick's logic below:
-//    link.addEventListener('click', register);
-//});
-
 function stopNotifications() {
     document.getElementById("start").removeAttribute("hidden");
     document.getElementById("stop").setAttribute("hidden", "true");
-    //chrome.storage.local.get("nhRegistrationId", function (resp) {
-    //    if (resp.hasOwnProperty("nhRegistrationId")) {
-    //        generateSaSToken();
-    //        sendNHDeleteRequest(resp.nhRegistrationId);
-    //    }
-    //});
     chrome.extension.sendMessage({
         stop: "true"
     });
