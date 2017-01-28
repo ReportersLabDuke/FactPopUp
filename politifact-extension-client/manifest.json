@@ -3,7 +3,7 @@
 
   "name": "FactPopUp",
   "description": "Creates notifications for fact-checking tweets.",
-  "version": "2.0.3",
+  "version": "2.1.0",
 
   "browser_action": {
     "default_icon": "logo.png",
@@ -13,7 +13,6 @@
   "background": {
     "scripts": [
 		"keys.js",
-		"lib/codebird.js",
 		"js/alert.js",
 		"lib/CryptoJS v3.1.2/rollups/hmac-sha256.js",
 		"lib/CryptoJS v3.1.2/components/enc-base64-min.js"
@@ -32,6 +31,7 @@
     "https://stream.twitter.com/*",
     "http://www.politifact.com/*",
     "https://pbs.twimg.com/*",
+	"https://raw.githubusercontent.com/ReportersLabDuke/FactPopUp/*",
     "gcm",
     "storage",
     "https://*.servicebus.windows.net/*",
