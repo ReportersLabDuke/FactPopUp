@@ -6,10 +6,11 @@ var sendingNotifications = true;
 
 //from: https://docs.microsoft.com/en-us/azure/notification-hubs/notification-hubs-chrome-push-notifications-get-started
 var registrationId = "";
-var hubName = "FactPopUpHub", connectionString = keys.azure_connection_string;
+var hubName = "FactPopUpHub", azureConnectionString = keys.azure_connection_string;
 var originalUri = "", targetUri = "", endpoint = "", sasKeyName = "", sasKeyValue = "", sasToken = "";
 var gcm_sender_id = keys.gcm_sender_id;
 var refreshInterval = 24 * 60 * 60 * 1000;
+var sasExpiryTimeInMinutes = 10;
 
 var parser = new DOMParser();
 
@@ -62,13 +63,13 @@ function registerCallback(regId) {
 }
 
 function registerWithNH() {
-    splitConnectionString();
-    generateSaSToken();
+    splitConnectionString(azureConnectionString);
+    generateSaSToken(sasExpiryTimeInMinutes);
     sendNHRegistrationRequest();
 }
 
 // From http://msdn.microsoft.com/library/dn495627.aspx
-function splitConnectionString() {
+function splitConnectionString(connectionString) {
     var parts = connectionString.split(';');
     if (parts.length != 3)
         throw "Error parsing connection string";
@@ -86,9 +87,9 @@ function splitConnectionString() {
     originalUri = endpoint + hubName;
 }
 
-function generateSaSToken() {
+function generateSaSToken(expiresInMins) {
     targetUri = encodeURIComponent(originalUri.toLowerCase()).toLowerCase();
-    var expiresInMins = 10; // 10 minute expiration
+    //var expiresInMins = 10; // 10 minute expiration TODO: maybe have this be defined elsewhere?
 
     // Set expiration in seconds.
     var expireOnDate = new Date();
