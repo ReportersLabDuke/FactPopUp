@@ -110,8 +110,28 @@ function generateSaSToken(expiresInMins) {
                     + base64UriEncoded + "&se=" + expires + "&skn=" + sasKeyName;
 }
 
+function processNHRegistrationResponse (client) {
+	if (client.readyState == 4) {
+		if (client.status == 200) {
+			updateLog("Notification Hub Registration succesful!");
+			updateLog(client.responseText);
+			var responseXml = parser.parseFromString(client.responseText, "text/xml");
+			id_tag = responseXml.getElementsByTagName("RegistrationId");
+			chrome.storage.local.set({
+				nhRegistrationId: responseXml.getElementsByTagName("RegistrationId")[0].innerHTML
+			});
+			
+			chrome.alarms.create("registrationTimer", { delayInMinutes: refreshInterval / (1000 * 60) })
+		} else {
+			updateLog("Notification Hub Registration did not succeed!");
+			updateLog("HTTP Status: " + client.status + " : " + client.statusText);
+			updateLog("HTTP Response: " + "\n" + client.responseText);
+		}
+	}
+}
+
 //update parameter determines whether to send an update or create request
-function sendNHRegistrationRequest() {
+function sendNHRegistrationRequest(registrationResponseCallback) {
     var registrationPayload =
     "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
     "<entry xmlns=\"http://www.w3.org/2005/Atom\">" +
@@ -126,39 +146,21 @@ function sendNHRegistrationRequest() {
     registrationPayload = registrationPayload.replace("{GCMRegistrationId}", registrationId);
 
     var url = originalUri + "/registrations/?api-version=2014-09".replace("{GCMRegistrationId}", registrationId);
-    var client = new XMLHttpRequest();
+    var httpClient = new XMLHttpRequest();
 
-    client.onload = function () {
-        if (client.readyState == 4) {
-            if (client.status == 200) {
-                updateLog("Notification Hub Registration succesful!");
-                updateLog(client.responseText);
-                var responseXml = parser.parseFromString(client.responseText, "text/xml");
-                id_tag = responseXml.getElementsByTagName("RegistrationId");
-                chrome.storage.local.set({
-                    nhRegistrationId: responseXml.getElementsByTagName("RegistrationId")[0].innerHTML
-                });
-                //setInterval(registerWithNH, refreshInterval, false);
-                chrome.alarms.create("registrationTimer", { delayInMinutes: refreshInterval / (1000 * 60) })
-            } else {
-                updateLog("Notification Hub Registration did not succeed!");
-                updateLog("HTTP Status: " + client.status + " : " + client.statusText);
-                updateLog("HTTP Response: " + "\n" + client.responseText);
-            }
-        }
-    };
+    httpClient.onload = function () { registrationResponseCallback(httpClient); };
 
-    client.onerror = function () {
+    httpClient.onerror = function () {
         updateLog("ERROR - Notification Hub Registration did not succeed!");
     }
 
-    client.open("POST", url, true);
-    client.setRequestHeader("Content-Type", "application/atom+xml;type=entry;charset=utf-8");
-    client.setRequestHeader("Authorization", sasToken);
-    client.setRequestHeader("x-ms-version", "2015-01");
+    httpClient.open("POST", url, true);
+    httpClient.setRequestHeader("Content-Type", "application/atom+xml;type=entry;charset=utf-8");
+    httpClient.setRequestHeader("Authorization", sasToken);
+    httpClient.setRequestHeader("x-ms-version", "2015-01");
 
     try {
-        client.send(registrationPayload);
+        httpClient.send(registrationPayload);
     }
     catch (err) {
         updateLog(err.message);

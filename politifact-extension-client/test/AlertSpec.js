@@ -41,13 +41,37 @@ describe("alert.js", function() {
   
   describe("when registering with Notification Hubs", function () {
     beforeAll(function () {
+	  this.server = sinon.fakeServer.create();
+	  
+	  this.xhr = sinon.useFakeXMLHttpRequest();
+	  var requests = this.requests = [];
+
+	  this.xhr.onCreate = function (xhr) {
+		requests.push(xhr);
+	  };
+		
       spyOn(XMLHttpRequest.prototype, open);
       spyOn(XMLHttpRequest.prototype, send);
 	  spyOn(XMLHttpRequest.prototype, setRequestHeader);
       
+	  var registrationResponse = 
+	  `<entry>
+		<id>https://xxxxxxxxxx.servicebus.windows.net/xxxxxxxxxx/registrations/{registrationId}</id>
+		<title type="text"> /xxxxxxxxxx/registrations/FAKEREGID</title>
+		<updated>2012-08-17T17:32:00Z</updated>
+		<metadata:etag>{weak Etag}</metadata:etag>
+		<content type="application/xml">
+		<WindowsRegistrationDescription xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/netservices/2010/10/servicebus/connect">
+			<ETag>{ETag}</ETag>
+			<ExpirationTime>2012-07-16T19:20+01:00</ExpirationTime>
+			<RegistrationId>FAKEREGID</RegistrationId>
+				<ChannelUri>{ChannelUri}</ChannelUri>
+			</WindowsRegistrationDescription>
+		</content>
+	  </entry>`
     });
     
-    sendNHRegistrationRequest();
+    sendNHRegistrationRequest(processNHRegistrationResponse);
 	
 	it("should have set the request headers", function () {
 		expect(XMLHttpRequest.prototype.setRequestHeader).toHaveBeenCalledTimes(3);
@@ -56,7 +80,13 @@ describe("alert.js", function() {
     it("should send a web request", function () {
       expect(XMLHttpRequest.prototype.open).toHaveBeenCalled();
       expect(XMLHttpRequest.prototype.send).toHaveBeenCalled();
+	  expect(this.requests.length).toEqual(1);
     });
+	
+	afterAll(function () {
+	  this.server.restore();
+	  this.xhr.restore();
+	});
   });
  
 });

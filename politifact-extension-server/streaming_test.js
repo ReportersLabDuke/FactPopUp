@@ -70,6 +70,10 @@ function isReply(tweet) {
 //
 var stream = T.stream('statuses/filter', { follow: user_id })
 
+stream.on('error', (err) => {
+  console.log('error!', err);
+});
+
 stream.on('tweet', function (tweet) {
 	if (!isReply(tweet)) {
 		console.log(tweet);
