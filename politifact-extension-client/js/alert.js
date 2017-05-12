@@ -233,7 +233,8 @@ chrome.gcm.onMessage.addListener(function (message) {
             tweet_obj.entities.media.map(function (val) { media_links.push(val.media_url_https); })
         }
 
-        sendNotification("", tweet_obj.text);
+        //sendNotification("", tweet_obj.text);
+        sendMessage("", tweet_obj.text, links, media_links);
     } else {
         console.log("Message recieved, not listening")
     }
@@ -304,6 +305,14 @@ function sendNotification(notificationTitle, notificationMessage) {
                     console.log(notifications);
                 });
         });
+}
+
+function sendMessage(notificationTitle, notificationMessage, links, mediaLinks) {
+  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    chrome.tabs.sendMessage(tabs[0].id, {message: notificationMessage, urls: links, pictureUrls: mediaLinks}, function(response) {
+      console.log(JSON.stringify(response));
+    });
+  });
 }
 
 chrome.notifications.onClicked.addListener(

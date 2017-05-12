@@ -5,8 +5,8 @@ var server_keys = require('./server_keys');
 Debug = true;
 var registrationExpiryThreshold = 1 * 60 * 1000;
 var purgeInterval = 60 * 60 * 1000;
-//user_id = '751627720790986752'; //@itsofficialtest
-user_id = '749640119766966272';
+user_id = '751627720790986752'; //@itsofficialtest
+//user_id = '749640119766966272';
 screen_name = 'politifactlive';
 
 var T = new Twit({
